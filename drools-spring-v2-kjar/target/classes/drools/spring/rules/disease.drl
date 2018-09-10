@@ -1,0 +1,224 @@
+package drools.spring.rules
+
+import com.sbnz.project.model.Disease;
+import com.sbnz.project.model.Symptom;
+import com.sbnz.project.model.PatientDiseaseMedicine;
+import com.sbnz.project.model.DiseaseGroup;
+import com.sbnz.project.model.MedicineGroup;
+
+global java.lang.Float temp;
+global java.util.Date last60days;
+global java.util.Date last6months;
+global java.util.Date last14days;
+global java.util.Date last21days;
+
+dialect "mvel"
+
+rule "set matched_num_sym for every disease"
+    no-loop
+    lock-on-active true
+    agenda-group "diseases"
+    salience 40
+    when
+        $d: Disease($symptoms : symptoms)
+        Symptom( name memberOf $symptoms, specific==false)
+        accumulate ($s : Symptom(name memberOf $symptoms, specific==false);
+        			$count : count($s));
+    then
+    	System.out.println("Usao u pravilo za disease poklapanje simptoma!");
+        modify($d){ setMatchedNumSym($count); }
+end
+
+rule "recovering from surgery"
+	no-loop
+    lock-on-active true
+    agenda-group "diseases"
+    salience 30
+    when
+    	$d : Disease($symptoms : symptoms,name == "Akutna bubrežna povreda")
+    	Symptom(name == "Oporavlja se od operacije",name memberOf $symptoms, specific==true)
+    then
+    	System.out.println("Oporavlja se od operacije");
+    	modify($d) {setSpecificChecked(true);}
+end
+
+rule "check the temperature > 38"
+	no-loop
+	lock-on-active true
+	agenda-group "diseases"
+	salience 30
+	when
+		$d : (Disease($mns : matchedNumSym, name == "Groznica") or Disease($mns : matchedNumSym, name == "Sinusna infekcija"))
+		eval(temp > 38)
+	then
+		System.out.println("Usao u pravilo za temperaturu");
+		modify($d){ setMatchedNumSym($mns+1);}
+end
+
+rule "check the temperature 40<temp<41"
+	no-loop
+	lock-on-active true
+	agenda-group "diseases"
+	salience 30
+	when
+		$d : Disease($mns: matchedNumSym, name == "Upala krajnika")
+		eval(temp >= 40)
+		eval(temp <= 41)
+	then
+		System.out.println("Usao u pravilo za temperaturu 2");
+		modify($d){ setMatchedNumSym($mns+1);}
+end
+
+
+rule "fever or cold in last 60 days"
+	no-loop
+	lock-on-active true
+	agenda-group "diseases"
+	salience 30
+	when
+		$d : Disease(name == "Sinusna infekcija", specificChecked == false, $mns : matchedNumSym)
+		$pdm : PatientDiseaseMedicine(disease != null,disease.name in ("Groznica", "Prehlada"),date!=null, last60days != null, last60days.before(date))
+	then
+		System.out.println("Usao u proveru za 60 dana");
+		modify($d){ setMatchedNumSym($mns+1);}
+		modify($d) {setSpecificChecked(true);}
+end
+
+rule "hypertension more than 6 months"
+	no-loop
+	lock-on-active true
+	agenda-group "diseases"
+	salience 30
+	when
+		$d : Disease(name == "Hronična bubrežna bolest", specificChecked == false)
+		$pdm : PatientDiseaseMedicine(disease != null,disease.name in ("Hipertenzija"),date!=null, last6months != null, last6months.after(date))
+	then
+		System.out.println("Usao u proveru za 6 meseci hronicna bubrezna bolest");
+		//modify($d){ setMatchedNumSym($mns+1);}
+		modify($d) {setSpecificChecked(true);}
+end
+
+rule "patient has diabetes"
+	no-loop
+	lock-on-active true
+	agenda-group "diseases"
+	salience 30
+	when
+		$d : Disease(name == "Hronična bubrežna bolest", specificChecked == false)
+		$pdm : PatientDiseaseMedicine(disease != null,disease.name in ("Dijabetes"))
+	then
+		System.out.println("Usao u proveru za dijabetes hronicna bubrezna bolest");
+		//modify($d){ setMatchedNumSym($mns+1);}
+		modify($d) {setSpecificChecked(true);}
+end
+
+rule "in last 14 days disease that has temp for a symptom"
+	no-loop
+	lock-on-active true
+	agenda-group "diseases"
+	salience 30
+	when
+		$d : Disease(name == "Akutna bubrežna povreda", specificChecked == false)
+		PatientDiseaseMedicine(disease != null,$diseaseID : disease.id,date!=null, last14days != null, last14days.before(date))
+		Disease(id==$diseaseID, symptoms contains "Temperatura veća od 38 ⁰C" || symptoms contains "Temperatura od 40 ⁰C do 41 ⁰C")
+	then
+		modify($d) {setSpecificChecked(true);}
+end
+
+rule "last 21 days patient has taken antibiotics"
+	no-loop
+	lock-on-active true
+	agenda-group "diseases"
+	salience 30
+	when
+		$d : Disease(name == "Akutna bubrežna povreda", specificChecked == false)
+		PatientDiseaseMedicine(disease != null,last21days != null,date!=null, last21days.before(date), medicine.group_med == MedicineGroup.ANTIBIOTIC)
+	then
+		modify($d) {setSpecificChecked(true);}
+end
+
+rule "set diagnosis for hypertension"
+	no-loop
+	lock-on-active true
+	agenda-group "diseases"
+	salience 30
+	when
+		$d : Disease(name == "Hipertenzija")
+		PatientDiseaseMedicine(disease != null, disease.name == "Visok krvni pritisak")
+		accumulate ($pdm: PatientDiseaseMedicine(disease != null, disease.name == "Visok krvni pritisak");
+					$count : count($pdm))
+		eval($count >= 10)
+	then
+		modify($d){ setMatchedNumSym(1L)}
+end
+
+rule "set diagnosis for group 1 for 4 symptoms"
+	no-loop
+	agenda-group "diagnose disease"
+	salience 1
+	when
+		$d : Disease(group == DiseaseGroup.GROUP1 ,matchedNumSym >= 4)
+		$pdm : PatientDiseaseMedicine(disease == null) 
+	then
+		//System.out.println("Usao u pravilo za grupu 1 sa 4 ili vise poklapanja simtoma");
+		modify($pdm){ setDisease($d) }
+end
+
+rule "set diagnosis for group 1 for 5 symptoms"
+	no-loop
+	agenda-group "diagnose disease"
+	salience 2
+	when
+		$d : Disease(group == DiseaseGroup.GROUP1 ,matchedNumSym >= 5)
+		$pdm : PatientDiseaseMedicine(disease == null) 
+	then
+		//System.out.println("Usao u pravilo za grupu 1 sa 5 ili vise poklapanja simtoma");
+		modify($pdm){ setDisease($d) }
+end
+
+rule "set diagnosis for group 1 for 6 symptoms"
+	no-loop
+	agenda-group "diagnose disease"
+	salience 3
+	when
+		$d : Disease(group == DiseaseGroup.GROUP1 ,matchedNumSym >= 6)
+		$pdm : PatientDiseaseMedicine(disease == null) 
+	then
+		//System.out.println("Usao u pravilo za grupu 1 sa 6 ili vise poklapanja simtoma");
+		modify($pdm){ setDisease($d) }
+end
+
+rule "set diagnosis for group 1 for 7 symptoms"
+	no-loop
+	agenda-group "diagnose disease"
+	salience 4
+	when
+		$d : Disease(group == DiseaseGroup.GROUP1 ,matchedNumSym >= 7)
+		$pdm : PatientDiseaseMedicine(disease == null) 
+	then
+		//System.out.println("Usao u pravilo za grupu 1 sa 7 ili vise poklapanja simtoma");
+		modify($pdm){ setDisease($d) }
+end
+
+rule "set diagnosis for matching all symptoms"
+	no-loop
+	agenda-group "diagnose disease"
+	salience 10
+	when
+		$d : Disease(symptoms.size() == matchedNumSym)
+		$pdm : PatientDiseaseMedicine() 
+	then
+		modify($pdm){ setDisease($d) }
+end
+
+rule "set diagnosis for group 3"
+	no-loop
+	agenda-group "diagnose disease"
+	salience 5
+	when
+		$d : Disease(group == DiseaseGroup.GROUP3, matchedNumSym >= 2, specificChecked == true)
+		$pdm : PatientDiseaseMedicine()
+	then
+		modify($pdm){ setDisease($d); }
+end
+

@@ -1,0 +1,98 @@
+<body>
+    <button id="openModal" #openModal [hidden]="true" 
+        data-toggle="modal" data-target="#template"></button>
+    <div class="modal fade" id="template" role="dialog" tabindex="-1" aria-labelledby="myModalLabel" data-backdrop="static" data-keyboard="false">
+    <div class="modal-dialog">
+    <div class="modal-content" style="background-color:darkgray; padding-left: 20px">
+                <h1>Chose a patient</h1>
+        <div class="modal-body">
+        <div class="row">
+            <div class="col-ms-6" style="padding-right: 5px;">
+                <button class="btn btn-primary btn-md" (click)="CollapsedID()"
+                [attr.aria-expanded]="!isCollapsedID" aria-controls="searchByID">
+                Find by ID
+                </button>
+            </div>
+            <div class="col-ms-6" style="padding-right: 5px;">
+                <button type="button" class="btn btn-primary btn-md" (click)="CollapsedNameAndSurname()"
+                [attr.aria-expanded]="!isCollapsedNameAndSurname" aria-controls="searchByNameAndSurname">
+                Find by name and surname
+                </button>
+            </div>
+            <div class="col-ms-6">
+                <button type="button" class="btn btn-primary btn-md" (click)="getAllPatients()">
+                See all
+                </button>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-6"  style="padding: 5px;" id="searchByID" [collapse]="isCollapsedID">
+                <label for="name">Patient ID:</label>
+                <div class="form-group">
+                    <div class="input-group mb-2 mr-sm-2 mb-sm-0">
+                        <div class="input-group-addon"><i class="fa fa-user"></i></div>
+                        <input type="number" name="patientID" [(ngModel)]="this.patientID" class="form-control" id="patientID"
+                            placeholder="Input patient ID" autofocus #name="ngModel">
+                    </div>
+                </div>
+                <div class="col-ms-6">
+                    <button id="searchPatientIDButton" type="button" class="btn btn-primary btn-md" (click)="searchById()"><i class="fa fa-user-plus"></i>Search</button>
+                </div>
+            </div>
+            <div class="col-md-6"  style="padding: 5px;" id="searchByNameAndSurname" [collapse]="isCollapsedNameAndSurname">
+                <label for="name">Patient name:</label>
+                <div class="form-group">
+                    <div class="input-group mb-2 mr-sm-2 mb-sm-0">
+                        <div class="input-group-addon"><i class="fa fa-user"></i></div>
+                        <input type="text" name="patientName" [(ngModel)]="patientSearchDTO.name" class="form-control" id="patientName"
+                            placeholder="Input patient name" autofocus #name="ngModel">
+                    </div>
+                </div>
+                <label for="name">Patient surname:</label>
+                <div class="form-group">
+                    <div class="input-group mb-2 mr-sm-2 mb-sm-0">
+                        <div class="input-group-addon"><i class="fa fa-user"></i></div>
+                        <input type="text" name="patientSurname" [(ngModel)]="patientSearchDTO.surname" class="form-control" id="patientSurname"
+                            placeholder="Input patient surname" autofocus #name="ngModel">
+                    </div>
+                </div>
+                <div class="col-ms-4">
+                    <button id="searchPatientButton" type="button" class="btn btn-primary btn-md" (click)="searchByNameAndSurname()"><i class="fa fa-user-plus"></i>Search</button>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-9">
+                <br>
+                <h1>Search results</h1>
+            </div>
+        </div>
+        <div class="row" *ngIf="this.patients != null">
+            <div class="col-md-6">
+                    <table class="table">
+                            <thead>
+                              <tr>
+                                <th scope="col"></th>
+                                <th scope="col">ID</th>
+                                <th scope="col">Name</th>
+                                <th scope="col">Surname</th>
+                                <th scope="col"></th>
+                              </tr>
+                            </thead>
+                            <tbody *ngFor="let p of this.patients; let i = index" [attr.data-index]="i">
+                              <tr>
+                                <th scope="row">{{i+1}}</th>
+                                <td>{{p.id}}</td>
+                                <td>{{p.name}}</td>
+                                <td>{{p.surname}}</td>
+                                <td><button id="selectButton" type="button" class="btn btn-primary btn-md" data-dismiss="modal" (click)="selectPatient(i)"><i class="fa fa-user-plus"></i>Select</button></td>
+                              </tr>
+                            </tbody>
+                          </table>
+            </div>
+        </div>
+        </div>
+        </div>
+        </div>
+    </div>
+</body>

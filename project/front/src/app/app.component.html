@@ -1,0 +1,50 @@
+<div style="text-align:center" *ngIf="!isLoggedIn()">
+  <nav style="text-align:center;background:rgb(248, 142, 142);" 
+  class="navbar navbar-expand-lg navbar-dark bg-dark">
+  <div>
+      <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+    
+      <div class="collapse navbar-collapse" id="navbarSupportedContent" style="font-weight:700">
+        <ul class="navbar-nav mr-auto">
+
+          <li class="nav-item active"  *ngIf="isLoggedIn()">
+            <a class="nav-link" style="color:white"  routerLink="login">Login<span class="sr-only">(current)</span></a>
+          </li>
+        </ul>
+      </div>
+    </div>
+    </nav>
+</div>
+<div style="text-align:center" *ngIf="isLoggedIn()">
+  <nav style="text-align:center;background:rgb(248, 142, 142);" 
+  class="navbar navbar-expand-lg navbar-dark bg-dark">
+  <div>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+  
+    <div class="collapse navbar-collapse" id="navbarSupportedContent" style="font-weight:700">
+      <ul class="navbar-nav mr-auto">
+        <li class="nav-item active">
+          <a class="nav-link" style="color:white"  (click)="logout()"  routerLink="logout">Logout<span class="sr-only">(current)</span></a>
+        </li>  
+        <li class="nav-item active" *ngIf="getRole()=='ADMINISTRATOR'">
+          <a class="nav-link" style="color:white" routerLink="register">Register new doctor</a>
+        </li>
+        <li class="nav-item active" *ngIf="getRole()=='DOCTOR'">
+            <a class="nav-link" style="color:white" routerLink="inputSymptoms">Input symptoms</a>
+        </li>
+        <li class="nav-item active" *ngIf="getRole()=='DOCTOR'">
+            <a class="nav-link" style="color:white" routerLink="viewSymptoms">View symptoms for diesese</a>
+        </li>
+        <li class="nav-item active" *ngIf="getRole()=='DOCTOR'">
+            <a class="nav-link" style="color:white" routerLink="setDiagnoses">Set diagnoses</a>
+        </li>      
+      </ul>
+    </div>
+  </div>
+  </nav>
+  </div>
+<router-outlet></router-outlet>

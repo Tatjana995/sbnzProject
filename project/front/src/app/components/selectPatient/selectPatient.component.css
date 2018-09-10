@@ -1,0 +1,47 @@
+.tablinks{
+    background-color: white;
+    float: left;
+    border-left: 2px solid rgb(17, 161, 245); /* Green */;
+    border-top: none;
+    border-right: none;
+    border-bottom: none;
+    cursor: pointer;
+    padding: 14px;
+    transition: 0.3s;
+    font-size: 16px;
+}
+
+.tablinks:hover {
+    background-color: rgb(99, 121, 245);
+}
+
+.tablinks.active {
+    background-color: rgb(189, 45, 45);
+}
+
+.datatable-header-cell {
+    vertical-align: bottom;
+    border-bottom: 2px solid rgba(25, 219, 84, 0.603);
+    padding: 8px;
+    line-height: 1.42857143;
+    font-weight: bold;
+    color: rgb(51, 51, 51);
+    }
+
+.ngx-datatable {
+    background-color: rgb(144, 207, 243);
+    padding: 5px;
+    border-radius: 4px;
+}
+
+.ngx-datatable:datatable-header:datatable-header-cell {
+    vertical-align: bottom;
+    padding: 0.75rem;
+    border-bottom: 1px solid #d1d4d7;
+    font-weight: bold;
+ }
+
+ .modal-content {
+    max-height: calc(100vh - 50px);
+    overflow-y: auto;
+}

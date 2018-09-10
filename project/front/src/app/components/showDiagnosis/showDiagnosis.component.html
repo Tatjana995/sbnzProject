@@ -1,0 +1,74 @@
+<body>
+    <div class="container">
+        <form class="form-horizontal" role="form">
+            <div class="row">
+                <div class="col-md-12" style="color:rgb(104, 99, 99); border:black">
+                    <br>
+                    <h2>Diagnosis</h2>
+                    <hr>
+                </div>
+            </div>
+            <div class="row" style="font-size: 20px">
+                <div class="form-group">
+                    <label class='input-w' for='temp'>
+                        <span class='label'><b>Naziv bolesti:</b> {{this.patientDiseaseMedicine.disease.name}}</span>
+                    </label>
+                </div>
+            </div>
+            <div>
+                <div class="row" style="font-size: 20px">
+                    <label class='input-w' for='temp'>
+                        <span class='label'><b>Simptomi</b></span>
+                    </label>
+                    <br>
+                </div>
+                <ul class="list-group" *ngFor="let sym of this.patientDiseaseMedicine.disease.symptoms">
+                    <div class="row" style="font-size: 20px">
+                    <li>{{sym}}</li>
+                    </div>
+                </ul>
+            </div>
+            <br>
+            <div class="row">
+                <button type="button" class="btn btn-primary btn-md" data-toggle="modal" data-target="#myModal">Izaberi lek</button>                  
+            </div>
+            <!-- Modal -->
+            <div class="modal fade" id="myModal" role="dialog">
+                <div class="modal-dialog">  
+                <!-- Modal content-->
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h4 class="modal-title">Odabir lekova</h4>
+                        <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    </div>
+                    <div class="modal-body">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th scope="col"></th>
+                                    <th scope="col">Name</th>
+                                    <th scope="col">Group</th>
+                                    <th scope="col">Components</th>
+                                    <th scope="col"></th>
+                                </tr>
+                            </thead>
+                            <tbody *ngFor="let med of this.medicines; let i = index" [attr.data-index]="i">
+                                <tr>
+                                    <th scope="row">{{i+1}}</th>
+                                    <td>{{med.name}}</td>
+                                    <td>{{med.group_med}}</td>
+                                    <td *ngFor="let c of med.components">{{c.name}}</td>
+                                    <td><button id="selectButton" type="button" class="btn btn-primary btn-md" data-dismiss="modal"><i class="fa fa-user-plus"></i>Select</button></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                    </div>
+                </div>      
+                </div>
+            </div>
+        </form>
+    </div>
+</body>

@@ -1,0 +1,52 @@
+<body>
+    <div class="container">
+        <form class="form-horizontal" role="form" (ngSubmit)="submitSymptoms()">
+            <div class="row">
+                <div class="col-md-12" style="color:rgb(104, 99, 99); border:black">
+                  <br>
+                  <h2>Chose symptoms</h2>
+                  <hr>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-4">
+                      <div class="row" *ngFor="let i of numbers">
+                      <div class="form-group">
+                      <input type="checkbox" name="symptoms[i].name" [(ngModel)] = "checked[i]"/> {{symptoms[i].name}} &nbsp;     
+                      </div>
+                      </div>                  
+                </div>
+                <div class="col-md-4">
+                      <div class="row" *ngFor="let i of numbers">
+                      <div class="form-group">
+                      <input type="checkbox" name="symptoms[i+this.rowNum].name" [(ngModel)] = "checked[i+rowNum]"/> {{symptoms[i+rowNum].name}} &nbsp;     
+                      </div>
+                      </div>                  
+                </div>
+                <div class="col-md-4">
+                    <div class="row" *ngFor="let i of lastNums">
+                    <div class="form-group">
+                    <input type="checkbox" name="symptoms[i].name" [(ngModel)] = "checked[i]"/> {{symptoms[i].name}} &nbsp;     
+                    </div>
+                    </div>                  
+              </div>
+            </div>
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-group">
+                    <label class='input-w' for='temp'>
+                        <span class='label'>Temperatura: </span>
+                        <input class='input' [ngModelOptions]="{standalone: true}" [(ngModel)] = "temperature" type='number' id='temp'>
+                    </label>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-3"></div>
+                <div class="col-md-6">
+                    <button id="submitSymptomsButton" type="submit" class="btn btn-primary btn-md">Submit</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</body>
